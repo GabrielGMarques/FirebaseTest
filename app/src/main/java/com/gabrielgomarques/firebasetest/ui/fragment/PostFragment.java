@@ -15,6 +15,7 @@ import com.gabrielgomarques.firebasetest.data.firebase.PostRepository;
 import com.gabrielgomarques.firebasetest.enitities.Post;
 import com.gabrielgomarques.firebasetest.enitities.User;
 import com.gabrielgomarques.firebasetest.ui.activity.DependsOfFirebaseDataActivity;
+import com.gabrielgomarques.firebasetest.ui.adapter.OnLoadMoreListener;
 import com.gabrielgomarques.firebasetest.ui.adapter.PostRecyclerViewAdapter;
 
 import java.util.ArrayList;
@@ -74,28 +75,28 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post_list, container, false);
 
 
-        List<Post> posts = new ArrayList<Post>();
+        final List<Post> posts = new ArrayList<Post>();
 
 
-        postRecyclerViewAdapter = new PostRecyclerViewAdapter(posts, mListener,view);
+        postRecyclerViewAdapter = new PostRecyclerViewAdapter((RecyclerView) view, posts, mListener);
+
 
         postRepository.setPostRecyclerViewAdapter(postRecyclerViewAdapter);
-        postRepository.getPostsByUser(posts,user);
+        postRepository.getPostsByUser(posts, user, 0);
+        postRecyclerViewAdapter.buildScrollListener((RecyclerView) view, new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                postRepository.getPostsByUser(posts, user, posts.size()-1);
+            }
+        });
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(postRecyclerViewAdapter);
-        }
+        Context context = view.getContext();
+        RecyclerView recyclerView = (RecyclerView) view;
+
+        recyclerView.setAdapter(postRecyclerViewAdapter);
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {

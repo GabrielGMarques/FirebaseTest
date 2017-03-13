@@ -14,10 +14,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Gabriel on 27/01/2017.
@@ -27,6 +33,7 @@ public class PostRepository extends Repository<Post, PostRepository> {
 
     private static PostRepository instance;
     private PostRecyclerViewAdapter postRecyclerViewAdapter;
+    private Query myTopPostsQuery;
 
     private PostRepository() {
         super(Post.class);
@@ -47,16 +54,35 @@ public class PostRepository extends Repository<Post, PostRepository> {
     }
 
     public void savePost(final Post post, final Bitmap bitmap) {
+
+        parentReference.child("posts").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                buildTaskSavePost(post, bitmap, snapshot.getChildrenCount());
+                parentReference.child("posts").removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+    }
+
+    private void buildTaskSavePost(final Post post, final Bitmap bitmap, final long position) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(final Void... params) {
 
-                String key = parentReference.child("posts").push().getKey();
+                DatabaseReference myRef = parentReference.child("posts").push();
+                String key = myRef.getKey();
                 post.setId(key);
 
                 Map<String, Object> childUpdates = new HashMap<>();
-                childUpdates.put("/posts/" + key, post);
-                childUpdates.put("/user-posts/" + post.getUserId() + "/" + key, post);
+                childUpdates.put("/posts/" + position, post);
+                childUpdates.put("/user-posts/" + post.getUserId() + "/" + position, post);
 
                 imageStorage.savePostImage(post, parentReference, bitmap, PostRepository.this, childUpdates);
 
@@ -65,13 +91,11 @@ public class PostRepository extends Repository<Post, PostRepository> {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
     }
 
-    public void getPostsByUser(final List<Post> posts, final User user,final int positionLastItem) {
+    public void getPostsByUser(final List<Post> posts, final User user, final int positionLastItem) {
 
-        final DatabaseReference localRef = parentReference.child("user-posts").child(user.getUserId());
-        Query myTopPostsQuery = localRef.orderByChild("time").limitToLast
-                (5);
+        myTopPostsQuery = parentReference.child("user-posts").child(user.getUserId()).limitToLast(positionLastItem+5);
 
-        ChildEventListener childEventListener = new ChildEventListener() {
+        myTopPostsQuery.addChildEventListener( new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 insertOrReplace(dataSnapshot, posts);
@@ -80,6 +104,7 @@ public class PostRepository extends Repository<Post, PostRepository> {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 insertOrReplace(dataSnapshot, posts);
+
             }
 
             @Override
@@ -96,26 +121,29 @@ public class PostRepository extends Repository<Post, PostRepository> {
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
-        };
-        myTopPostsQuery.addChildEventListener(childEventListener);
+
+        });
     }
 
     private void insertOrReplace(DataSnapshot dataSnapshot, final List<Post> posts) {
-//        Iterable<DataSnapshot> postsInterator = dataSnapshot.getChildren();
-//        while (postsInterator.iterator().hasNext()) {
-//        for (DataSnapshot data : dataSnapshot.getChildren()) {
-
         Post newPost = dataSnapshot.getValue(Post.class);
 
+        //Add edition of an post for the viewers
         if (posts.contains(newPost)) {
             Post oldPost = posts.get(posts.indexOf(newPost));
             oldPost.setDatePost(newPost.getDatePost());
             oldPost.setDescription(newPost.getDescription());
         } else {
-            posts.add(0, newPost);
+            posts.add(newPost);
         }
-//        }
-        postRecyclerViewAdapter.notifyDataSetChanged();
+
+            Collections.sort(posts, new Comparator<Post>() {
+                @Override
+                public int compare(Post post, Post post2) {
+                    return post != null && post2 != null ? - post.getTime().compareTo(post2.getTime()) : 0;
+                }
+            });
+        postRecyclerViewAdapter.notifyDataSetChangedOvirreded();
     }
 
     public PostRecyclerViewAdapter getPostRecyclerViewAdapter() {
@@ -125,27 +153,5 @@ public class PostRepository extends Repository<Post, PostRepository> {
     public void setPostRecyclerViewAdapter(PostRecyclerViewAdapter postRecyclerViewAdapter) {
         this.postRecyclerViewAdapter = postRecyclerViewAdapter;
     }
-//    public void getById(final String userId, final DependsOfFirebaseDataActivity<Post> dependsOfFirebaseDataActivity) {
 //
-//        dependsOfFirebaseDataActivity.onStartRequest();
-//
-//        parentReference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                List<Post> user = dataSnapshot.get
-//
-//                dependsOfFirebaseDataActivity.onSuccessRequest(user);
-//
-//                dependsOfFirebaseDataActivity.onFinishRequest();
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//
-//        });
-//        return null;
-//    }
 }

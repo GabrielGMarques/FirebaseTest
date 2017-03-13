@@ -18,52 +18,65 @@ import com.gabrielgomarques.firebasetest.util.MediaUtil;
 import java.util.List;
 
 
-public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerViewAdapter.ViewHolder> {
+public class PostRecyclerViewAdapter extends AbstractRecyclerViewFooterAdapter<Post>{
 
-    private final List<Post> mValues;
+//    private final List<Post> mValues;
     private final PostFragment.OnListFragmentInteractionListener mListener;
-    private View view;
 
-    public PostRecyclerViewAdapter(List<Post> items, PostFragment.OnListFragmentInteractionListener listener, final View view) {
-        mValues = items;
-        mListener = listener;
-        this.view = view;
+
+    public PostRecyclerViewAdapter(RecyclerView recyclerView, List<Post> dataSet, PostFragment.OnListFragmentInteractionListener mListener) {
+        super(recyclerView, dataSet);
+        this.mListener = mListener;
     }
+//
+//    public PostRecyclerViewAdapteonBindBasicItemViewr(List<Post> items, PostFragment.OnListFragmentInteractionListener listener, final View view) {
+//        mValues = items;
+//        mListener = listener;
+//        this.view = view;
+//    }
+
+//    @Override
+//    public ViewPostHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+//        View view = LayoutInflater.from(parent.getContext())
+//                .inflate(R.layout.fragment_post, parent, false);
+//        return new ViewPostHolder(view);
+//    }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
+    public RecyclerView.ViewHolder onCreateBasicItemViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_post, parent, false);
-        return new ViewHolder(view);
+        return new ViewPostHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
+    public void onBindBasicItemView(RecyclerView.ViewHolder holder, int position) {
+        final ViewPostHolder postHolder = (ViewPostHolder) holder;
+        postHolder.mItem = getDataSet().get(position);
 
-        MediaUtil.setBitmap(holder.mItem.getMediaUrl(), holder.postPicture, holder.progressBar, holder.postImageWrapper, this.view.getContext(), true);
-        holder.textAuthor.setText(String.valueOf(holder.mItem.getAuthorName()));
-        holder.textDecription.setText(String.valueOf(holder.mItem.getDescription()));
-        holder.postDate.setText(Consts.getTimeDiference(holder.mItem.getDatePost()));
-        holder.mView.setOnClickListener(new View.OnClickListener() {
+        MediaUtil.setBitmap(postHolder.mItem.getMediaUrl(), postHolder.postPicture, postHolder.progressBar, postHolder.postImageWrapper, this.view.getContext(), true);
+        postHolder.textAuthor.setText(String.valueOf(postHolder.mItem.getAuthorName()));
+        postHolder.textDecription.setText(String.valueOf(postHolder.mItem.getDescription()));
+        postHolder.postDate.setText(Consts.getTimeDiference(postHolder.mItem.getDatePost()));
+        postHolder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onListFragmentInteraction(postHolder.mItem);
                 }
             }
         });
     }
 
 
-    @Override
-    public int getItemCount() {
-        return mValues.size();
-    }
+//    @Override
+//    public int getItemCount() {
+//        return mValues.size();
+//    }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewPostHolder extends RecyclerView.ViewHolder {
         public final RelativeLayout postImageWrapper;
         public final View mView;
         public final ImageView postPicture;
@@ -73,7 +86,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         public final TextView textDecription;
         public Post mItem;
 
-        public ViewHolder(View view) {
+        public ViewPostHolder(View view) {
             super(view);
             mView = view;
             postImageWrapper = (RelativeLayout) view.findViewById(R.id.post_image_wrapper);

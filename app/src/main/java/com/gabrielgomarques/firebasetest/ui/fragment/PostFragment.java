@@ -3,8 +3,6 @@ package com.gabrielgomarques.firebasetest.ui.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,25 +12,18 @@ import com.gabrielgomarques.firebasetest.R;
 import com.gabrielgomarques.firebasetest.data.firebase.PostRepository;
 import com.gabrielgomarques.firebasetest.enitities.Post;
 import com.gabrielgomarques.firebasetest.enitities.User;
-import com.gabrielgomarques.firebasetest.ui.activity.DependsOfFirebaseDataActivity;
+import com.gabrielgomarques.firebasetest.ui.activity.RequestListener;
 import com.gabrielgomarques.firebasetest.ui.adapter.OnLoadMoreListener;
 import com.gabrielgomarques.firebasetest.ui.adapter.PostRecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
 public class PostFragment extends Fragment {
 
 
     //region Objects
     public RequestDataListenerImpl requestDataListener = new RequestDataListenerImpl();
-    private OnListFragmentInteractionListener mListener;
     private PostRepository postRepository = PostRepository.getInstance();
     private User user;
     private PostRecyclerViewAdapter postRecyclerViewAdapter;
@@ -43,10 +34,7 @@ public class PostFragment extends Fragment {
     private int mColumnCount = 1;
     //endregion
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
+
     public PostFragment() {
     }
 
@@ -72,13 +60,13 @@ public class PostFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_post_list, container, false);
+        View view = inflater.inflate(R.layout.post_fragment_recycler_view, container, false);
 
 
         final List<Post> posts = new ArrayList<Post>();
 
 
-        postRecyclerViewAdapter = new PostRecyclerViewAdapter((RecyclerView) view, posts, mListener);
+        postRecyclerViewAdapter = new PostRecyclerViewAdapter((RecyclerView) view, posts);
 
 
         postRepository.setPostRecyclerViewAdapter(postRecyclerViewAdapter);
@@ -101,36 +89,15 @@ public class PostFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(Post item);
-    }
 
-    public class RequestDataListenerImpl implements DependsOfFirebaseDataActivity<Post> {
+    public class RequestDataListenerImpl implements RequestListener<Post> {
 
         @Override
         public void onStartRequest() {

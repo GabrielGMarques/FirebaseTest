@@ -48,6 +48,8 @@ public class MediaUtil {
 
     public static void setBitmap(final String url, final CircleImageView imageView) {
 
+
+
         AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
 
             @Override
@@ -71,7 +73,7 @@ public class MediaUtil {
         task.execute();
     }
 
-    public static void setBitmap(final String url, final ImageView postImage, final ProgressBar progressBar, final RelativeLayout imageWrapper, final Context context,final boolean isNew) {
+    public static void setBitmap(final String url, final ImageView postImage, final ProgressBar progressBar, final Context context) {
 
         progressBar.setVisibility(View.VISIBLE);
 

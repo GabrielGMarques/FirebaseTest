@@ -2,9 +2,8 @@ package com.gabrielgomarques.firebasetest.data.firebase;
 
 import android.graphics.Bitmap;
 
-import com.gabrielgomarques.firebasetest.data.firebase.util.Build;
 import com.gabrielgomarques.firebasetest.enitities.User;
-import com.gabrielgomarques.firebasetest.ui.activity.DependsOfFirebaseDataActivity;
+import com.gabrielgomarques.firebasetest.ui.activity.RequestListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -30,7 +29,7 @@ public class UserRepository extends Repository<User, UserRepository> {
         return instance;
     }
 
-    public void saveUser(User user, Bitmap bitmap,final DependsOfFirebaseDataActivity<User> dependsOfFirebaseDataActivity) {
+    public void saveUser(User user, Bitmap bitmap,final RequestListener<User> requestListener) {
 
         DatabaseReference localRef = parentReference.child(user.getUserId());
 
@@ -39,7 +38,7 @@ public class UserRepository extends Repository<User, UserRepository> {
         if (bitmap != null)
             imageStorage.saveUserImage(user, this, localRef, bitmap);
 
-        dependsOfFirebaseDataActivity.onStartRequest();
+        requestListener.onStartRequest();
 
         localRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -47,9 +46,9 @@ public class UserRepository extends Repository<User, UserRepository> {
 
                 User user = dataSnapshot.getValue(User.class);
 
-                dependsOfFirebaseDataActivity.onSuccessRequest(user);
+                requestListener.onSuccessRequest(user);
 
-                dependsOfFirebaseDataActivity.onFinishRequest();
+                requestListener.onFinishRequest();
             }
 
             @Override
@@ -61,11 +60,11 @@ public class UserRepository extends Repository<User, UserRepository> {
 
     }
 
-    public void getById(final String userId, final DependsOfFirebaseDataActivity<User> dependsOfFirebaseDataActivity) {
+    public void getById(final String userId, final RequestListener<User> requestListener) {
 
         DatabaseReference localRef = parentReference.child(userId);
 
-        dependsOfFirebaseDataActivity.onStartRequest();
+        requestListener.onStartRequest();
 
         localRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -73,9 +72,9 @@ public class UserRepository extends Repository<User, UserRepository> {
 
                 User user = dataSnapshot.getValue(User.class);
 
-                dependsOfFirebaseDataActivity.onSuccessRequest(user);
+                requestListener.onSuccessRequest(user);
 
-                dependsOfFirebaseDataActivity.onFinishRequest();
+                requestListener.onFinishRequest();
             }
 
             @Override

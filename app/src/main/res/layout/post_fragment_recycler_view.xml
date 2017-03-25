@@ -10,5 +10,5 @@
     android:layout_marginBottom="16dp"
     app:layoutManager="LinearLayoutManager"
     tools:context="com.gabrielgomarques.firebasetest.ui.fragment.PostFragment"
-    tools:listitem="@layout/fragment_post"
+    tools:listitem="@layout/post_card_item"
     android:background="@color/md_grey_50"/>

@@ -7,16 +7,13 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -29,7 +26,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,10 +33,7 @@ import com.gabrielgomarques.firebasetest.R;
 import com.gabrielgomarques.firebasetest.data.firebase.UserRepository;
 import com.gabrielgomarques.firebasetest.data.local.util.SQLiteUserRepository;
 import com.gabrielgomarques.firebasetest.enitities.User;
-import com.gabrielgomarques.firebasetest.ui.fragment.PostModalFragment;
-import com.gabrielgomarques.firebasetest.util.MediaUtil;
 import com.gabrielgomarques.firebasetest.util.resources.MethodsUtil;
-import com.gabrielgomarques.firebasetest.util.resources.PictureTakerUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -53,8 +46,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
@@ -284,7 +275,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 if (keepConnected.isChecked())
                     sqLiteUserRepository.saveUser(user);
                 else
-                    sqLiteUserRepository.deleteUser();
+                    sqLiteUserRepository.deleteCurrentUserData();
             }
             moveToHome(user);
 
@@ -511,7 +502,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    public class OnUserRequestListener implements DependsOfFirebaseDataActivity<User> {
+    public class OnUserRequestListener implements RequestListener<User> {
 
         @Override
         public void onStartRequest() {

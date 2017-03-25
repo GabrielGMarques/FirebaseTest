@@ -8,7 +8,6 @@ import com.gabrielgomarques.firebasetest.data.firebase.PostRepository;
 import com.gabrielgomarques.firebasetest.data.firebase.UserRepository;
 import com.gabrielgomarques.firebasetest.enitities.Post;
 import com.gabrielgomarques.firebasetest.enitities.User;
-import com.gabrielgomarques.firebasetest.ui.activity.DependsOfFirebaseDataActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;

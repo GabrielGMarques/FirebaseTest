@@ -1,18 +1,12 @@
 package com.gabrielgomarques.firebasetest.ui.activity;
 
-import static com.gabrielgomarques.firebasetest.util.Consts.*;
-
 import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -22,43 +16,32 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.gabrielgomarques.firebasetest.R;
 import com.gabrielgomarques.firebasetest.data.firebase.UserRepository;
 import com.gabrielgomarques.firebasetest.data.local.util.SQLiteUserRepository;
-import com.gabrielgomarques.firebasetest.enitities.Post;
 import com.gabrielgomarques.firebasetest.enitities.User;
 import com.gabrielgomarques.firebasetest.ui.fragment.PostFragment;
 import com.gabrielgomarques.firebasetest.ui.fragment.PostModalFragment;
+import com.gabrielgomarques.firebasetest.ui.fragment.ProfileFragment;
 import com.gabrielgomarques.firebasetest.util.UtilFactory;
 import com.gabrielgomarques.firebasetest.util.resources.PictureTakerUtil;
 import com.google.firebase.crash.FirebaseCrash;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
-import com.squareup.picasso.Picasso;
 
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import de.hdodenhof.circleimageview.CircleImageView;
 
-public class HomeActivity extends AppCompatActivity implements PostFragment.OnListFragmentInteractionListener {
+public class HomeActivity extends AppCompatActivity {
 
 
     @BindView(R.id.content_home_layout)
@@ -198,11 +181,11 @@ public class HomeActivity extends AppCompatActivity implements PostFragment.OnLi
         PostFragment postFragment = new PostFragment();
         postFragment.setUser(user);
         appFragments.put(1, postFragment);
-    }
 
-    @Override
-    public void onListFragmentInteraction(Post item) {
-        Log.d(HomeActivity.class.getName(), "item added: " + item.toString());
+        ProfileFragment profileFragment = new ProfileFragment();
+        profileFragment.setUserId(user.getUserId());
+        appFragments.put(2, profileFragment);
+
     }
 
     @Override
@@ -266,19 +249,28 @@ public class HomeActivity extends AppCompatActivity implements PostFragment.OnLi
 
         if (position != this.currentFragmentPosition) {
             try {
-                switch (position) {
-                    case 1:
-                        getFragmentManager().beginTransaction().add(R.id.fragment_container, appFragments.get(1)).commit();
-                        this.currentFragmentPosition = position;
-                        break;
-                    case 4:
-                        sqLiteUserRepository.deleteUser();
-                        Intent i = new Intent(HomeActivity.this, LoginActivity.class);
-                        this.currentFragmentPosition = position;
-                        finish();
-                        startActivity(i);
-                        break;
+                if(position==4) {
+                    sqLiteUserRepository.deleteCurrentUserData();
+                    Intent i = new Intent(HomeActivity.this, LoginActivity.class);
+                    this.currentFragmentPosition = position;
+                    finish();
+                    startActivity(i);
+                    return;
                 }
+                getFragmentManager().beginTransaction().remove(appFragments.get(this.currentFragmentPosition)).add(R.id.fragment_container, appFragments.get(2)).commit();
+                this.currentFragmentPosition = position;
+
+//                switch (position) {
+//                    case 1:
+//                        getFragmentManager().beginTransaction().add(R.id.fragment_container, appFragments.get(1)).commit();
+//                        this.currentFragmentPosition = position;
+//                        break;
+//                    case 2:
+//                        getFragmentManager().beginTransaction().remove(appFragments.get(this.currentFragmentPosition));
+//                        getFragmentManager().beginTransaction().add(R.id.fragment_container, appFragments.get(2)).commit();
+//                        this.currentFragmentPosition = position;
+//                        break;
+//                }
             } catch (Exception e) {
                 Log.d(HomeActivity.class.getName(), e.getMessage() + "");
                 FirebaseCrash.report(e);
@@ -287,7 +279,7 @@ public class HomeActivity extends AppCompatActivity implements PostFragment.OnLi
 
     }
 
-    public class OnUserRequestListener implements DependsOfFirebaseDataActivity<User> {
+    public class OnUserRequestListener implements RequestListener<User> {
 
         @Override
         public void onStartRequest() {

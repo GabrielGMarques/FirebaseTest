@@ -3,7 +3,6 @@ package com.gabrielgomarques.firebasetest.ui.fragment;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,8 +20,7 @@ import com.gabrielgomarques.firebasetest.R;
 import com.gabrielgomarques.firebasetest.data.firebase.PostRepository;
 import com.gabrielgomarques.firebasetest.enitities.Post;
 import com.gabrielgomarques.firebasetest.enitities.User;
-import com.gabrielgomarques.firebasetest.ui.activity.DependsOfFirebaseDataActivity;
-import com.squareup.picasso.Callback;
+import com.gabrielgomarques.firebasetest.ui.activity.RequestListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.Date;
@@ -168,7 +166,7 @@ public class PostModalFragment extends DialogFragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public class RequestDataListenerImpl implements DependsOfFirebaseDataActivity<Post> {
+    public class RequestDataListenerImpl implements RequestListener<Post> {
 
         @Override
         public void onStartRequest() {

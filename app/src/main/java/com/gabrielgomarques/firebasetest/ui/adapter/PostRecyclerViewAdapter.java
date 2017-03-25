@@ -21,12 +21,10 @@ import java.util.List;
 public class PostRecyclerViewAdapter extends AbstractRecyclerViewFooterAdapter<Post>{
 
 //    private final List<Post> mValues;
-    private final PostFragment.OnListFragmentInteractionListener mListener;
 
 
-    public PostRecyclerViewAdapter(RecyclerView recyclerView, List<Post> dataSet, PostFragment.OnListFragmentInteractionListener mListener) {
+    public PostRecyclerViewAdapter(RecyclerView recyclerView, List<Post> dataSet) {
         super(recyclerView, dataSet);
-        this.mListener = mListener;
     }
 //
 //    public PostRecyclerViewAdapteonBindBasicItemViewr(List<Post> items, PostFragment.OnListFragmentInteractionListener listener, final View view) {
@@ -35,17 +33,12 @@ public class PostRecyclerViewAdapter extends AbstractRecyclerViewFooterAdapter<P
 //        this.view = view;
 //    }
 
-//    @Override
-//    public ViewPostHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//        View view = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.fragment_post, parent, false);
-//        return new ViewPostHolder(view);
-//    }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateBasicItemViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_post, parent, false);
+                .inflate(R.layout.post_card_item, parent, false);
         return new ViewPostHolder(v);
     }
 
@@ -54,20 +47,20 @@ public class PostRecyclerViewAdapter extends AbstractRecyclerViewFooterAdapter<P
         final ViewPostHolder postHolder = (ViewPostHolder) holder;
         postHolder.mItem = getDataSet().get(position);
 
-        MediaUtil.setBitmap(postHolder.mItem.getMediaUrl(), postHolder.postPicture, postHolder.progressBar, postHolder.postImageWrapper, this.view.getContext(), true);
+        MediaUtil.setBitmap(postHolder.mItem.getMediaUrl(), postHolder.postPicture, postHolder.progressBar, this.view.getContext());
         postHolder.textAuthor.setText(String.valueOf(postHolder.mItem.getAuthorName()));
         postHolder.textDecription.setText(String.valueOf(postHolder.mItem.getDescription()));
         postHolder.postDate.setText(Consts.getTimeDiference(postHolder.mItem.getDatePost()));
-        postHolder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(postHolder.mItem);
-                }
-            }
-        });
+//        postHolder.mView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (null != mListener) {
+//                    // Notify the active callbacks interface (the activity, if the
+//                    // fragment is attached to one) that an item has been selected.
+//                    mListener.onListFragmentInteraction(postHolder.mItem);
+//                }
+//            }
+//        });
     }
 
 

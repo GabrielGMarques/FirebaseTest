@@ -20,7 +20,7 @@ public class SQLiteUserRepository extends SQLiteRepository {
         super(context);
     }
 
-    public void deleteUser() throws Exception {
+    public void deleteCurrentUserData() throws Exception {
         SQLiteDatabase db = getReadableDatabase();
         db.delete(USER_TABLE_NAME, null, null);
     }

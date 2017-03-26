@@ -4,13 +4,10 @@
 
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.gabrielgomarques.firebasetest.ui.fragment.ProfileFragment"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/profile_data"
@@ -52,6 +49,7 @@
                 android:src="@drawable/ic_pencil"
                 android:elevation="3dp"
                 android:layout_margin="5dp"
+            android:visibility="invisible"
             android:layout_marginBottom="16dp"
 
             />

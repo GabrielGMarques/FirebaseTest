@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:windowSoftInputMode="adjustResize"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.gabrielgomarques.firebasetest.ui.activity.LoginActivity">
 
@@ -125,6 +126,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="16dp"
                     android:background="@drawable/google_plus"
+                    android:visibility="invisible"
                     android:textStyle="bold" />
 
                 <ImageView

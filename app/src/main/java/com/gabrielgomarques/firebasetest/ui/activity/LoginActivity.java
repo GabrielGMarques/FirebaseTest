@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -21,6 +22,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -33,7 +35,8 @@ import com.gabrielgomarques.firebasetest.R;
 import com.gabrielgomarques.firebasetest.data.firebase.UserRepository;
 import com.gabrielgomarques.firebasetest.data.local.util.SQLiteUserRepository;
 import com.gabrielgomarques.firebasetest.enitities.User;
-import com.gabrielgomarques.firebasetest.util.resources.MethodsUtil;
+import com.gabrielgomarques.firebasetest.util.MessageUtil;
+import com.gabrielgomarques.firebasetest.util.MethodsUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -113,8 +116,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         auth = FirebaseAuth.getInstance();
 
 
-
-
         userRepository = UserRepository.getInstance();
 
         sqLiteUserRepository = new SQLiteUserRepository(this);
@@ -168,9 +169,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
 
-
-
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -193,7 +191,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password) || !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -220,6 +218,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(this.getWindow().getDecorView().getRootView().getWindowToken(), 0);
+
             showProgress(true);
             Task<AuthResult> authTask = auth.signInWithEmailAndPassword(mEmailView.getText().toString(), mPasswordView.getText().toString());
             authTask.addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -228,8 +229,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     try {
                         extractUserAndMoveToHomeActivity(task.getResult().getUser(), false);
                     } catch (Exception e) {
-                        FirebaseCrash.report(e);
-                        mEmailSignInButton.setError("Login or password invalid");
+                        mEmailSignInButton.setError("");
+                        MessageUtil.getInstance().showSnacbar(LoginActivity.this.findViewById(R.id.coordinator_layout_login_activity), "Login or password is invalid");
                     } finally {
                         showProgress(false);
                     }
@@ -251,7 +252,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     extractUserAndMoveToHomeActivity(task.getResult().getUser(), true);
                 } catch (Exception e) {
                     FirebaseCrash.report(e);
-                    mEmailSignInButton.setError("Login or password invalid");
                 } finally {
                     showProgress(false);
                 }
@@ -346,19 +346,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
+        return MethodsUtil.matchesPattern("[a-zA-z0-9]+@[a-zA-z0-9]", email) != null;
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 7;
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in

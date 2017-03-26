@@ -15,11 +15,13 @@ import com.gabrielgomarques.firebasetest.data.local.util.SQLiteUserRepository;
 import com.gabrielgomarques.firebasetest.enitities.User;
 import com.gabrielgomarques.firebasetest.ui.activity.HomeActivity;
 import com.gabrielgomarques.firebasetest.ui.activity.LoginActivity;
+import com.gabrielgomarques.firebasetest.ui.activity.NavigationListener;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crash.FirebaseCrash;
+import com.mikepenz.fastadapter.adapters.ItemAdapter;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -42,22 +44,25 @@ public class UtilFactory {
 
     private static final String CLASS_NAME = UtilFactory.class.getName();
 
-    public static  Drawer buildDraweLayout(final HomeActivity activity, long positionAtOptions){
+    public static  Drawer buildDraweLayout(final NavigationListener listener,final Activity context, long positionAtOptions){
 
         PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIcon(FontAwesome.Icon.faw_home).withName("Home").withIdentifier(1);
         PrimaryDrawerItem item2 = new PrimaryDrawerItem().withIcon(FontAwesome.Icon.faw_user).withName("Profile").withIdentifier(2);
         PrimaryDrawerItem item3 = new PrimaryDrawerItem().withIcon(GoogleMaterial.Icon.gmd_perm_data_setting).withName("Settings").withIdentifier(3);
         PrimaryDrawerItem item4 = new PrimaryDrawerItem().withIcon(FontAwesome.Icon.faw_sign_out).withName("Log Out").withIdentifier(4);
 
-        Drawer drawerLayout = new DrawerBuilder().withActivity(activity) .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+        final Drawer drawerLayout = new DrawerBuilder().withActivity(context).build();
+
+        drawerLayout.setOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
             @Override
             public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
 
-                activity.changeContext(position);
-
-                return true;
+                drawerLayout.deselect(listener.onSelectItem(position));
+                drawerItem.withSetSelected(true);
+                drawerLayout.closeDrawer();
+                return  true;
             }
-        }).build();
+        });
         drawerLayout.addItems(item1,item2,item3,item4);
 
         drawerLayout.setSelection(positionAtOptions);

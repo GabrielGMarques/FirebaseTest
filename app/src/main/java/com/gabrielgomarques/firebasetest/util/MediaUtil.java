@@ -34,45 +34,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 public class MediaUtil {
-    private static int times = 0;
-
-    public static void insertImageInto(final Activity context, final ImageView imageView, final Task<Uri> taskUri) {
-        taskUri.addOnCompleteListener(context, new OnCompleteListener<Uri>() {
-            @Override
-            public void onComplete(@NonNull Task<Uri> task) {
-
-                Picasso.with(context).load(task.getResult()).into(imageView);
-            }
-        });
-    }
-
-    public static void setBitmap(final String url, final CircleImageView imageView) {
-
-
-
-        AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
-
-            @Override
-            protected Bitmap doInBackground(Void... strings) {
-                Bitmap bitmap = null;
-                try (InputStream is = new URL(url).openStream()) {
-                    bitmap = BitmapFactory.decodeStream(is);
-                } catch (Exception e) {
-                    FirebaseCrash.report(e);
-                }
-
-                return bitmap;
-            }
-
-            @Override
-            protected void onPostExecute(Bitmap bitmap) {
-                if (bitmap != null)
-                    imageView.setImageBitmap(bitmap);
-            }
-        };
-        task.execute();
-    }
-
     public static void setBitmap(final String url, final ImageView postImage, final ProgressBar progressBar, final Context context) {
 
         progressBar.setVisibility(View.VISIBLE);

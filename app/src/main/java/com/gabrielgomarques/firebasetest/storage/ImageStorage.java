@@ -23,13 +23,6 @@ import java.util.Map;
  */
 
 public class ImageStorage extends Storage {
-
-    public Task<Uri> getImage(Class tClass, String id, String path) {
-        StorageReference imagesRef = storageRef.child(tClass.getSimpleName() + "/" + id);
-        StorageReference interestrellarRef = storageRef.child(path);
-        return interestrellarRef.getDownloadUrl();
-    }
-
     /**
      * Save image
      *

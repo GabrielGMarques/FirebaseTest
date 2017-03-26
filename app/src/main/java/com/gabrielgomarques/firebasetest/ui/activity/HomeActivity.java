@@ -30,6 +30,7 @@ import com.gabrielgomarques.firebasetest.ui.fragment.PostModalFragment;
 import com.gabrielgomarques.firebasetest.ui.fragment.ProfileFragment;
 import com.gabrielgomarques.firebasetest.util.UtilFactory;
 import com.gabrielgomarques.firebasetest.util.resources.PictureTakerUtil;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.crash.FirebaseCrash;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.Drawer;
@@ -41,7 +42,7 @@ import java.util.HashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements NavigationListener,MenuOptionsBridge{
 
 
     @BindView(R.id.content_home_layout)
@@ -84,6 +85,9 @@ public class HomeActivity extends AppCompatActivity {
 
     private IProfile profile;
 
+    private static final Integer POST_LIST_FRAGMENT_POSITION = 1;
+    private static final Integer PROFILE_FRAGMENT_POSITION = 2;
+
     //Fragments of application, with position at drawer list as key
     private HashMap<Integer, Fragment> appFragments = new HashMap<Integer, Fragment>();
 
@@ -94,7 +98,6 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
@@ -129,7 +132,7 @@ public class HomeActivity extends AppCompatActivity {
 
         userRepository.getById(user.getUserId(), userRequestListener);
 
-        drawerLayout = UtilFactory.buildDraweLayout(this, 1);
+        drawerLayout = UtilFactory.buildDraweLayout(this,this, 1);
 
         editSearch.setVisibility(View.INVISIBLE);
 
@@ -173,18 +176,17 @@ public class HomeActivity extends AppCompatActivity {
                     1);
         }
 
-        getFragmentManager().beginTransaction().add(R.id.fragment_container, appFragments.get(1)).commit();
-
+        getFragmentManager().beginTransaction().add(R.id.fragment_container, appFragments.get(POST_LIST_FRAGMENT_POSITION)).commit();
     }
 
     private void buildFragments() {
         PostFragment postFragment = new PostFragment();
         postFragment.setUser(user);
-        appFragments.put(1, postFragment);
+        appFragments.put(POST_LIST_FRAGMENT_POSITION , postFragment);
 
         ProfileFragment profileFragment = new ProfileFragment();
         profileFragment.setUserId(user.getUserId());
-        appFragments.put(2, profileFragment);
+        appFragments.put(PROFILE_FRAGMENT_POSITION , profileFragment);
 
     }
 
@@ -245,7 +247,9 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    public void changeContext(Integer position) {
+    @Override
+    public int onSelectItem(int position) {
+        int previousItemSelected = this.currentFragmentPosition;
 
         if (position != this.currentFragmentPosition) {
             try {
@@ -255,29 +259,18 @@ public class HomeActivity extends AppCompatActivity {
                     this.currentFragmentPosition = position;
                     finish();
                     startActivity(i);
-                    return;
+                    return previousItemSelected;
                 }
-                getFragmentManager().beginTransaction().remove(appFragments.get(this.currentFragmentPosition)).add(R.id.fragment_container, appFragments.get(2)).commit();
+                getFragmentManager().beginTransaction().remove(appFragments.get(this.currentFragmentPosition)).add(R.id.fragment_container, appFragments.get(position)).commit();
                 this.currentFragmentPosition = position;
-
-//                switch (position) {
-//                    case 1:
-//                        getFragmentManager().beginTransaction().add(R.id.fragment_container, appFragments.get(1)).commit();
-//                        this.currentFragmentPosition = position;
-//                        break;
-//                    case 2:
-//                        getFragmentManager().beginTransaction().remove(appFragments.get(this.currentFragmentPosition));
-//                        getFragmentManager().beginTransaction().add(R.id.fragment_container, appFragments.get(2)).commit();
-//                        this.currentFragmentPosition = position;
-//                        break;
-//                }
             } catch (Exception e) {
                 Log.d(HomeActivity.class.getName(), e.getMessage() + "");
                 FirebaseCrash.report(e);
             }
         }
-
+        return previousItemSelected;
     }
+
 
     public class OnUserRequestListener implements RequestListener<User> {
 

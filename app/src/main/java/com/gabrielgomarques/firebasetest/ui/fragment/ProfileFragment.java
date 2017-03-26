@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import com.gabrielgomarques.firebasetest.R;
 import com.gabrielgomarques.firebasetest.data.firebase.UserRepository;
 import com.gabrielgomarques.firebasetest.enitities.User;
+import com.gabrielgomarques.firebasetest.ui.activity.MenuOptionsBridge;
 import com.gabrielgomarques.firebasetest.ui.activity.RequestListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -36,6 +39,7 @@ public class ProfileFragment extends Fragment {
 
     @BindView(R.id.profile_data)
     LinearLayout profileData;
+
     //endregion
     //region Data Objects
     private UserRepository userRepository = UserRepository.getInstance();
@@ -45,6 +49,7 @@ public class ProfileFragment extends Fragment {
     //endregion
     //region Listeners
     private RequestListenerImpl requestListener = new RequestListenerImpl();
+    private MenuOptionsBridge optionsBridge;
     //endregion listeners
 
     public ProfileFragment() {
@@ -64,6 +69,12 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.add(0, 0, 0, "Option1");
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -80,6 +91,9 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        if(context instanceof MenuOptionsBridge){
+            optionsBridge = (MenuOptionsBridge)context;
+        }
     }
 
     @Override
